@@ -9,6 +9,7 @@ import android.widget.EditText
 import android.widget.ImageView
 import com.example.network.ImageInit
 import com.example.network.interfaces.Callback
+import com.example.network.utility.Utility
 
 class MainActivity : AppCompatActivity() {
 
@@ -39,16 +40,19 @@ class MainActivity : AppCompatActivity() {
         btnNext.setOnClickListener {
             dogImageProvider.getNextImage(object : Callback() {
                 val methodTag = "onResume.getNextImage"
-                override fun onSuccess(bitmap: Bitmap?) {
-                    bitmap?.let { _bitmap ->
-                        runOnUiThread {
-                            ivImage.setImageBitmap(_bitmap)
-                        }
-                    } ?: Log.w(TAG, "$methodTag.onSuccess: bitmapImage is not available for this call")
-                }
+                override fun onCompletion(state: Utility.Companion.UI_STATES, bitmap: Bitmap?) {
 
-                override fun onFailure() {
-                    Log.w(TAG, "$methodTag.onFailure: bitmapImage is not available for this call")
+                    when(state) {
+                        Utility.Companion.UI_STATES.IN_PROGRESS -> Log.w(TAG, "$methodTag.IN_PROGRESS: Making server call")
+                        Utility.Companion.UI_STATES.FAILURE -> Log.w(TAG, "$methodTag.FAILURE: bitmapImage is not available for this call")
+                        Utility.Companion.UI_STATES.DONE -> runOnUiThread {
+                            bitmap?.let { _bitmap ->
+                                ivImage.setImageBitmap(_bitmap)
+                            } ?: Log.w(TAG, "$methodTag.DONE: bitmapImage is not available for this call")
+                        }
+
+                    }
+
                 }
             })
         }

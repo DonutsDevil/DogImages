@@ -66,7 +66,7 @@ class ImageInit {
                 } else {
                     false
                 }
-                callback.onCompletion(imageAddedToTheList, null)
+                callback.onSuccess(null)
             }
         })
 
@@ -82,7 +82,7 @@ class ImageInit {
             // User is currently at the end of the list
             // fetch a image and return the same
             val failureRunnable = Runnable {
-                callback.onCompletion(false, null)
+                callback.onFailure()
             }
             getImage(getNextImageSuccessRunnable(callback), failureRunnable)
         } else {
@@ -98,7 +98,7 @@ class ImageInit {
         return Runnable {
             incrementUserViewIndex()
             val bitmap = imagesBitmapList[getCurrentListIndex()]
-            callback.onCompletion(true, bitmap)
+            callback.onSuccess(bitmap)
         }
     }
 
