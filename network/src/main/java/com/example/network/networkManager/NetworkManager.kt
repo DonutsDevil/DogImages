@@ -7,9 +7,9 @@ object NetworkManager {
 
     /**
      * Get List of size times which contains dog image bitmap
-     * @param times should be greater then 0
+     * @param times should be greater then 0, Default is 1
      */
-    fun fetchImages(times: Int): List<Bitmap?> {
+    fun fetchImages(times: Int = 1): List<Bitmap?> {
         return getRetryInterceptor().makeHttpCall(times)
     }
 
