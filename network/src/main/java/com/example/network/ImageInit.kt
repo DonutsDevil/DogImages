@@ -2,6 +2,7 @@ package com.example.network
 
 import android.graphics.Bitmap
 import com.example.network.interfaces.Callback
+import com.example.network.interfaces.IResult
 import com.example.network.networkManager.NetworkManager
 
 class ImageInit {
@@ -34,26 +35,38 @@ class ImageInit {
      * get a image from the server and adds to the list
      * @return true if addition of bitmap was success else false
      */
-    private fun getImage(): Boolean {
-        val imageList = NetworkManager.fetchImages()
-        return if (imageList.isNotEmpty()) {
-            imagesBitmapList.add(imageList[0])
-        } else {
-            false
-        }
+    private fun getImage(successRunnable: Runnable, failureRunnable: Runnable) {
+        NetworkManager.fetchImages(1, object : IResult {
+            override fun onResponse(bitmapList: List<Bitmap?>) {
+                if (bitmapList.isNotEmpty()) {
+                    synchronized(lock) {
+                        imagesBitmapList.add(bitmapList[0])
+                    }
+                    successRunnable.run()
+                } else {
+                    failureRunnable.run()
+                }
+            }
+        })
     }
 
     /**
      * gets [number] of bitmaps from the server and adds to the list
      */
     fun getImages(number: Int, callback: Callback) {
-        val imageList = NetworkManager.fetchImages(number)
-        val imageAddedToTheList = if (imageList.isNotEmpty()) {
-            imagesBitmapList.addAll(imageList)
-        } else {
-            false
-        }
-        callback.onCompletion(imageAddedToTheList, null)
+        NetworkManager.fetchImages(number, object : IResult {
+            override fun onResponse(bitmapList: List<Bitmap?>) {
+                val imageAddedToTheList = if (bitmapList.isNotEmpty()) {
+                    synchronized(lock) {
+                        imagesBitmapList.addAll(bitmapList)
+                    }
+                } else {
+                    false
+                }
+                callback.onCompletion(imageAddedToTheList, null)
+            }
+        })
+
     }
 
     /**
@@ -64,14 +77,23 @@ class ImageInit {
         if (getCurrentListIndex() == imagesBitmapList.size) {
             // User is currently at the end of the list
             // fetch a image and return the same
-            val isImageFetched = getImage()
-            if (isImageFetched) {
-                val bitmap = imagesBitmapList[getCurrentListIndex()]
-                callback.onCompletion(true, bitmap)
-                incrementUserViewIndex()
-            } else {
+            val failureRunnable = Runnable {
                 callback.onCompletion(false, null)
             }
+            getImage(getNextImageSuccessRunnable(callback), failureRunnable)
+        } else {
+            getNextImageSuccessRunnable(callback).run()
+        }
+    }
+
+    /**
+     * @return runnable which needs to be run when we want to [getNextImage]
+     */
+    private fun getNextImageSuccessRunnable(callback: Callback): Runnable {
+        return Runnable {
+            val bitmap = imagesBitmapList[getCurrentListIndex()]
+            callback.onCompletion(true, bitmap)
+            incrementUserViewIndex()
         }
     }
 
