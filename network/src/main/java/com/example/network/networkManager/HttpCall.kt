@@ -42,24 +42,6 @@ class HttpCall {
     }
 
     /**
-     * Fetches data from the requestUrl and returns InputStream for the same.
-     * @param requestUrl url with protocol to which HTTP call is to be made
-     * @return InputStream of the requestUrl
-     * @throws RequestCodeException if response code is is not 200
-     * @throws MalformedURLException if no protocol is specified in requestUrl
-     * @throws IllegalArgumentException if requestUrl is empty
-     * @throws IOException if any exception occurred while reading or making connection
-     */
-    @Throws(Exception::class)
-    fun getInputStream(requestUrl: String): InputStream? {
-        if (requestUrl.isEmpty()) {
-            throw IllegalArgumentException("Url is empty")
-        }
-        val url = createUrl(requestUrl)
-        return makeHttpRequest(url)
-    }
-
-    /**
      * Create URL object from the String url representation
      * @param requestUrl url which needs to be converted URL object
      * @return URL object of @param requestUrl

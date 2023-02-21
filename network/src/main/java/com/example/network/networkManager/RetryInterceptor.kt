@@ -56,10 +56,6 @@ class RetryInterceptor(private val httpCall: HttpCall) {
             val jsonResponse = httpCall.fetchJson(url)
             val imageUrl = JsonParser.getImageUrl(jsonResponse)
             return imageUrl?.let { _imageUrl ->
-//                val inputStream = httpCall.getInputStream(_imageUrl)
-//                inputStream?.let {
-//                    extractImage(inputStream)
-//                }
                 val `in` = java.net.URL(_imageUrl).openStream()
                 BitmapFactory.decodeStream(`in`)
             }
