@@ -1,7 +1,7 @@
 package com.example.network.networkManager
 
 import com.example.network.interfaces.IResult
-import java.util.concurrent.SynchronousQueue
+import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 
@@ -9,9 +9,9 @@ object NetworkManager {
     private const val TAG = "NetworkManager"
 
     private val executor by lazy {
-        ThreadPoolExecutor(0, 4,
+        ThreadPoolExecutor(0, 1,
         30L, TimeUnit.SECONDS,
-        SynchronousQueue()
+        LinkedBlockingDeque()
         )
     }
 

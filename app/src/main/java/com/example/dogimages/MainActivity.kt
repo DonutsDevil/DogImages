@@ -41,7 +41,9 @@ class MainActivity : AppCompatActivity() {
                 val methodTag = "onResume.getNextImage"
                 override fun onSuccess(bitmap: Bitmap?) {
                     bitmap?.let { _bitmap ->
-                        ivImage.setImageBitmap(_bitmap)
+                        runOnUiThread {
+                            ivImage.setImageBitmap(_bitmap)
+                        }
                     } ?: Log.w(TAG, "$methodTag.onSuccess: bitmapImage is not available for this call")
                 }
 
@@ -54,6 +56,7 @@ class MainActivity : AppCompatActivity() {
         btnPrevious.setOnClickListener {
             val bitmap = dogImageProvider.getPreviousImage()
             bitmap?.let { _bitmap ->
+                Log.d(TAG, "onResume: setting previous image ${Thread.currentThread().name}")
                 ivImage.setImageBitmap(_bitmap)
             } ?: Log.w(TAG, "onResume.setOnClickListener: bitmapImage is not available for this call")
         }

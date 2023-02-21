@@ -1,6 +1,7 @@
 package com.example.network
 
 import android.graphics.Bitmap
+import android.util.Log
 import com.example.network.interfaces.Callback
 import com.example.network.interfaces.IResult
 import com.example.network.networkManager.NetworkManager
@@ -9,15 +10,17 @@ class ImageInit {
 
     companion object {
         private val imagesBitmapList = mutableListOf<Bitmap?>()
+        private const val TAG = "ImageInit"
 
         /**
          * this index shows the current place where the user is in the imageBitmapList
          */
-        private var currentListIndex = 0
+        @Volatile
+        private var currentListIndex = -1
         private val lock = Any()
 
         @Volatile
-        private lateinit var instance: ImageInit
+        private var instance: ImageInit? = null
 
         fun getInstance(): ImageInit {
             if (instance == null) {
@@ -27,7 +30,7 @@ class ImageInit {
                     }
                 }
             }
-            return instance
+            return instance!!
         }
     }
 
@@ -41,8 +44,8 @@ class ImageInit {
                 if (bitmapList.isNotEmpty()) {
                     synchronized(lock) {
                         imagesBitmapList.add(bitmapList[0])
+                        successRunnable.run()
                     }
-                    successRunnable.run()
                 } else {
                     failureRunnable.run()
                 }
@@ -74,7 +77,8 @@ class ImageInit {
      * @return Bitmap of the next image which is to be showed
      */
     fun getNextImage(callback: Callback) {
-        if (getCurrentListIndex() == imagesBitmapList.size) {
+        if (getCurrentListIndex() + 1 == imagesBitmapList.size) {
+            Log.d(TAG, "getNextImage: Fetch new image")
             // User is currently at the end of the list
             // fetch a image and return the same
             val failureRunnable = Runnable {
@@ -82,6 +86,7 @@ class ImageInit {
             }
             getImage(getNextImageSuccessRunnable(callback), failureRunnable)
         } else {
+            Log.d(TAG, "getNextImage: Use loaded image")
             getNextImageSuccessRunnable(callback).run()
         }
     }
@@ -91,9 +96,9 @@ class ImageInit {
      */
     private fun getNextImageSuccessRunnable(callback: Callback): Runnable {
         return Runnable {
+            incrementUserViewIndex()
             val bitmap = imagesBitmapList[getCurrentListIndex()]
             callback.onCompletion(true, bitmap)
-            incrementUserViewIndex()
         }
     }
 
@@ -104,6 +109,7 @@ class ImageInit {
     fun getPreviousImage(): Bitmap? {
         if (getCurrentListIndex() <= 0 || imagesBitmapList.isEmpty()) {
             // do nothing since there is no image to be shown
+            Log.i(TAG, "getPreviousImage: do nothing since there is no image to be shown")
             return null
         }
         decrementUserViewIndex()

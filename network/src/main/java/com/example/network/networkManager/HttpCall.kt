@@ -35,7 +35,7 @@ class HttpCall {
         val url = createUrl(requestUrl)
         val inputStream = makeHttpRequest(url)
         var jsonResponse = ""
-        inputStream.use { _inputStream ->
+        inputStream?.use { _inputStream ->
             jsonResponse = readFromStream(_inputStream)
         }
         return jsonResponse

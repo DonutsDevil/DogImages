@@ -1,9 +1,9 @@
 package com.example.network.networkManager
 
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.util.Log
 import com.example.network.utility.JsonParser
-import com.example.network.utility.extractImage
 import org.json.JSONException
 import java.io.IOException
 import java.net.SocketException
@@ -56,10 +56,12 @@ class RetryInterceptor(private val httpCall: HttpCall) {
             val jsonResponse = httpCall.fetchJson(url)
             val imageUrl = JsonParser.getImageUrl(jsonResponse)
             return imageUrl?.let { _imageUrl ->
-                val inputStream = httpCall.getInputStream(_imageUrl)
-                inputStream?.let {
-                    extractImage(inputStream)
-                }
+//                val inputStream = httpCall.getInputStream(_imageUrl)
+//                inputStream?.let {
+//                    extractImage(inputStream)
+//                }
+                val `in` = java.net.URL(_imageUrl).openStream()
+                BitmapFactory.decodeStream(`in`)
             }
         } catch (r: RequestCodeException) {
             Log.e(TAG, "fetchBitmap: Call failed: Response code: ${r.code}", r)
