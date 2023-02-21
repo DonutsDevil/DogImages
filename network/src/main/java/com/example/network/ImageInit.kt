@@ -1,12 +1,14 @@
 package com.example.network
 
 import android.graphics.Bitmap
+import com.example.network.interfaces.Callback
 import com.example.network.networkManager.NetworkManager
 
 class ImageInit {
 
     companion object {
         private val imagesBitmapList = mutableListOf<Bitmap?>()
+
         /**
          * this index shows the current place where the user is in the imageBitmapList
          */
@@ -30,37 +32,47 @@ class ImageInit {
 
     /**
      * get a image from the server and adds to the list
+     * @return true if addition of bitmap was success else false
      */
-    fun getImage() {
+    private fun getImage(): Boolean {
         val imageList = NetworkManager.fetchImages()
-        if (imageList.isNotEmpty()) {
+        return if (imageList.isNotEmpty()) {
             imagesBitmapList.add(imageList[0])
+        } else {
+            false
         }
     }
 
     /**
      * gets [number] of bitmaps from the server and adds to the list
      */
-    fun getImages(number: Int) {
+    fun getImages(number: Int, callback: Callback) {
         val imageList = NetworkManager.fetchImages(number)
-        if (imageList.isNotEmpty()) {
+        val imageAddedToTheList = if (imageList.isNotEmpty()) {
             imagesBitmapList.addAll(imageList)
+        } else {
+            false
         }
+        callback.onCompletion(imageAddedToTheList, null)
     }
 
     /**
      * Shows the next image, If the user is at the end then it will fetch the image [getImage] and then show
      * @return Bitmap of the next image which is to be showed
      */
-    fun getNextImage(): Bitmap? {
+    fun getNextImage(callback: Callback) {
         if (getCurrentListIndex() == imagesBitmapList.size) {
             // User is currently at the end of the list
             // fetch a image and return the same
-            getImage()
+            val isImageFetched = getImage()
+            if (isImageFetched) {
+                val bitmap = imagesBitmapList[getCurrentListIndex()]
+                callback.onCompletion(true, bitmap)
+                incrementUserViewIndex()
+            } else {
+                callback.onCompletion(false, null)
+            }
         }
-        val bitmap = imagesBitmapList[getCurrentListIndex()]
-        incrementUserViewIndex()
-        return  bitmap
     }
 
     /**
