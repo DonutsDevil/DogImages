@@ -7,10 +7,8 @@ import com.example.network.utility.JsonParser
 import org.json.JSONException
 import java.io.FileNotFoundException
 import java.io.IOException
-import java.io.ObjectInput
 import java.net.SocketException
 import java.net.UnknownHostException
-import kotlin.math.log
 import kotlin.random.Random
 
 /**
@@ -23,7 +21,7 @@ class RetryInterceptor(private val httpCall: HttpCall) {
         private const val TAG = "RetryInterceptor"
         private const val times_retry = 3
         private const val url = "https://dog.ceo/api/breeds/image/random"
-        private val lock = Object()
+        private val signal_lock = Object()// signal lock
         private val addLock = Object()
     }
 
@@ -51,14 +49,17 @@ class RetryInterceptor(private val httpCall: HttpCall) {
                     imageList.add(bitmap)
                     if (imageList.size == times) {
                         Log.d(TAG, "makeHttpCall: is notify the lock")
-                        lock.notifyAll()
+                        synchronized(signal_lock) {
+                            signal_lock.notifyAll()
+                        }
                     }
                 }
+                Log.d(TAG, "makeHttpCall: is after sync block")
             }
         }
         Log.d(TAG, "makeHttpCall: going to wait")
-        synchronized(addLock) {
-            lock.wait()
+        synchronized(signal_lock) {
+            signal_lock.wait()
         }
         Log.d(TAG, "makeHttpCall: passing the list $imageList")
         return imageList
