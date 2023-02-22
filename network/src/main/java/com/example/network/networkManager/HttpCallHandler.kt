@@ -3,6 +3,7 @@ package com.example.network.networkManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
+import com.example.network.interfaces.IResult
 import com.example.network.utility.JsonParser
 import org.json.JSONException
 import java.io.FileNotFoundException
@@ -15,13 +16,12 @@ import kotlin.random.Random
  * Class is responsible for making calls to the server and also make retry calls if response code is not 200
  * [times_retry] means that 1st call is the default call then if any failure we do +2 retry call
  */
-class RetryInterceptor(private val httpCall: HttpCall) {
+class HttpCallHandler(private val httpCall: HttpCall) {
 
     companion object {
-        private const val TAG = "RetryInterceptor"
+        private const val TAG = "HttpCallHandler"
         private const val times_retry = 3
         private const val url = "https://dog.ceo/api/breeds/image/random"
-        private val signal_lock = Object()// signal lock
         private val addLock = Object()
     }
 
@@ -31,38 +31,23 @@ class RetryInterceptor(private val httpCall: HttpCall) {
      * @param times number of times call is to be made
      * @return list of bitmaps which we receive after making @times server calls
      */
-    fun makeHttpCall(times: Int): List<Bitmap?> {
+    internal fun makeHttpCall(times: Int, callback: IResult) {
         if (times <= 0) {
-            Log.d(
-                TAG,
-                "makeHttpCall: number of time to fetch dog image is less or equal to 0: $times"
-            )
-            return emptyList()
+            callback.onResponse(emptyList())
+            return
         }
         val imageList = mutableListOf<Bitmap?>()
         for (makeCall in 1..times) {
-            Log.d(TAG, "makeHttpCall: before making submit")
             NetworkManager.executor.submit {
-                Log.d(TAG, "makeHttpCall: call $makeCall")
                 val bitmap = fetchBitmap()
                 synchronized(addLock) {
                     imageList.add(bitmap)
                     if (imageList.size == times) {
-                        Log.d(TAG, "makeHttpCall: is notify the lock")
-                        synchronized(signal_lock) {
-                            signal_lock.notifyAll()
-                        }
+                        callback.onResponse(imageList)
                     }
                 }
-                Log.d(TAG, "makeHttpCall: is after sync block")
             }
         }
-        Log.d(TAG, "makeHttpCall: going to wait")
-        synchronized(signal_lock) {
-            signal_lock.wait()
-        }
-        Log.d(TAG, "makeHttpCall: passing the list $imageList")
-        return imageList
     }
 
     /**

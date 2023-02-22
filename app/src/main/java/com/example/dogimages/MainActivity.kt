@@ -12,6 +12,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.RelativeLayout
+import android.widget.Toast
 import com.example.network.ImageInit
 import com.example.network.interfaces.Callback
 import com.example.network.utility.Utility
@@ -137,7 +138,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun dogImageCallback() = object : Callback() {
-        override fun onCompletion(state: Utility.Companion.UI_STATES, bitmap: Bitmap?) {
+        override fun onCompletion(state: Utility.Companion.UI_STATES, bitmap: Bitmap?, reason: String) {
             val methodTag = "dogImageCallback.onCompletion"
             when (state) {
                 Utility.Companion.UI_STATES.IN_PROGRESS -> {
@@ -147,7 +148,7 @@ class MainActivity : AppCompatActivity() {
                 Utility.Companion.UI_STATES.FAILURE -> {
                     Log.w(TAG, "$methodTag.FAILURE: bitmapImage is not available for this call")
                     setProgressBarVisibility(View.GONE)
-
+                    showToast(reason)
                 }
                 Utility.Companion.UI_STATES.DONE -> {
                     runOnUiThread {
@@ -165,7 +166,17 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }
+        }
+    }
 
+    /**
+     * Shows Toast with the [reason]
+     */
+    private fun showToast(reason: String) {
+        if (reason.isEmpty()) {
+            return
+        } else {
+            Toast.makeText(this,reason,Toast.LENGTH_SHORT).show()
         }
     }
 }

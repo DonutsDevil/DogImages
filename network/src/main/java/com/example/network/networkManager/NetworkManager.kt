@@ -1,17 +1,17 @@
 package com.example.network.networkManager
 
 import com.example.network.interfaces.IResult
-import java.util.concurrent.LinkedBlockingDeque
+import java.util.concurrent.SynchronousQueue
 import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 
 object NetworkManager {
-    private const val TAG = "NetworkManager"
 
     val executor by lazy {
-        ThreadPoolExecutor(0, 10,
-        30L, TimeUnit.SECONDS,
-        LinkedBlockingDeque()
+        ThreadPoolExecutor(
+            0, Int.MAX_VALUE,
+            30L, TimeUnit.SECONDS,
+            SynchronousQueue()
         )
     }
 
@@ -21,15 +21,14 @@ object NetworkManager {
      */
     internal fun fetchImages(times: Int = 1, callback: IResult) {
         executor.submit {
-            val imageBitmapList = getRetryInterceptor().makeHttpCall(times)
-            callback.onResponse(imageBitmapList)
+            getRetryInterceptor().makeHttpCall(times, callback)
         }
     }
 
     /**
-     * @return [RetryInterceptor]
+     * @return [HttpCallHandler]
      */
-    private fun getRetryInterceptor(): RetryInterceptor {
-        return RetryInterceptor(HttpCall())
+    private fun getRetryInterceptor(): HttpCallHandler {
+        return HttpCallHandler(HttpCall())
     }
 }

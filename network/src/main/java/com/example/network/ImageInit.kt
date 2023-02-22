@@ -55,8 +55,14 @@ class ImageInit(private val callback: Callback) {
 
     /**
      * gets [number] of bitmaps from the server and adds to the list
+     * Can't fetch more 100+ image at a time because OutOfMemoryException will be thrown
+     * @param number positive Int
      */
     fun getImages(number: Int) {
+        if (number > 100) {
+            callback.onFailure("100+ can't be fetch at a time")
+            return
+        }
         callback.inProgress()
         NetworkManager.fetchImages(number, object : IResult {
             override fun onResponse(bitmapList: List<Bitmap?>) {

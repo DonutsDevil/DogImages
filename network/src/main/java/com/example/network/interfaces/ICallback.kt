@@ -16,6 +16,11 @@ private interface ICallback {
     fun onFailure()
 
     /**
+     * passes failure reason.
+     */
+    fun onFailure(reason: String)
+
+    /**
      * In the Begin of the server we mark it inProgress
      * always on main thread
      */
@@ -35,8 +40,9 @@ abstract class Callback : ICallback {
      * when status other then [Utility.Companion.UI_STATES.DONE]
      * @param state [Utility.Companion.UI_STATES] defines states at which the request is
      * @param bitmap holds the fetched bitmap if [Utility.Companion.UI_STATES.DONE], else null
+     * @param reason is empty by default, passes value as needed
      */
-    protected abstract fun onCompletion(state: Utility.Companion.UI_STATES, bitmap: Bitmap?)
+    protected abstract fun onCompletion(state: Utility.Companion.UI_STATES, bitmap: Bitmap?, reason: String = "")
 
     override fun onSuccess(bitmap: Bitmap?) {
         onCompletion(Utility.Companion.UI_STATES.DONE, bitmap)
@@ -52,6 +58,10 @@ abstract class Callback : ICallback {
 
     override fun isFirstImage() {
         onCompletion(Utility.Companion.UI_STATES.IS_FIRST_IMAGE, null)
+    }
+
+    override fun onFailure(reason: String) {
+        onCompletion(Utility.Companion.UI_STATES.FAILURE, null, reason)
     }
 
 }
