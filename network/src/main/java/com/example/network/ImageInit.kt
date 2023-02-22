@@ -57,6 +57,7 @@ class ImageInit {
      * gets [number] of bitmaps from the server and adds to the list
      */
     fun getImages(number: Int, callback: Callback) {
+        callback.inProgress()
         NetworkManager.fetchImages(number, object : IResult {
             override fun onResponse(bitmapList: List<Bitmap?>) {
                 val imageAddedToTheList = if (bitmapList.isNotEmpty()) {
@@ -77,6 +78,7 @@ class ImageInit {
      * @return Bitmap of the next image which is to be showed
      */
     fun getNextImage(callback: Callback) {
+        callback.inProgress()
         if (getCurrentListIndex() + 1 == imagesBitmapList.size) {
             Log.d(TAG, "getNextImage: Fetch new image")
             // User is currently at the end of the list

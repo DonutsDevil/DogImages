@@ -17,6 +17,7 @@ private interface ICallback {
 
     /**
      * In the Begin of the server we mark it inProgress
+     * always on main thread
      */
     fun inProgress()
 }
