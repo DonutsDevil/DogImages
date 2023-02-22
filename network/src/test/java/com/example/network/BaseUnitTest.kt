@@ -1,18 +1,19 @@
 package com.example.network
 
-import io.mockk.clearAllMocks
-import io.mockk.unmockkAll
+import android.util.Log
+import io.mockk.*
 import org.junit.After
 import org.junit.AfterClass
 import org.junit.Before
 import org.junit.BeforeClass
+import kotlin.math.log
 
 open class BaseUnitTest {
     companion object {
         @BeforeClass
         @JvmStatic
         fun beforeClass() {
-
+            mockkStatic(Log::class)
         }
 
         @AfterClass
@@ -24,7 +25,10 @@ open class BaseUnitTest {
 
     @Before
     open fun beforeEachTest() {
-
+        every { Log.e(any(), any()) } returns 0
+        every { Log.d(any(), any()) } returns 0
+        every { Log.i(any(), any()) } returns 0
+        every { Log.v(any(), any()) } returns 0
     }
 
     @After

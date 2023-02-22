@@ -1,6 +1,7 @@
 package com.example.network.networkManager
 
 import android.util.Log
+import androidx.annotation.VisibleForTesting
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStream
@@ -48,7 +49,8 @@ class HttpCall {
      * @throws MalformedURLException if no protocol is specified, or an unknown protocol is found, or spec is null.
      */
     @Throws(MalformedURLException::class)
-    private fun createUrl(requestUrl: String): URL {
+    @VisibleForTesting
+    fun createUrl(requestUrl: String): URL {
         return URL(requestUrl)
     }
 
@@ -59,7 +61,8 @@ class HttpCall {
      * @throws IOException if closing of the InputStream caused any issue or the response code was not 200.
      */
     @Throws(IOException::class)
-    private fun makeHttpRequest(url: URL): InputStream? {
+    @VisibleForTesting
+    fun makeHttpRequest(url: URL): InputStream? {
         var urlConnection: HttpURLConnection? = null
         try {
             urlConnection = url.openConnection() as HttpURLConnection
@@ -91,7 +94,8 @@ class HttpCall {
      * @throws IOException if any exception occurs while reading from the inputStream
      */
     @Throws(IOException::class)
-    private fun readFromStream(inputStream: InputStream?): String {
+    @VisibleForTesting
+    fun readFromStream(inputStream: InputStream?): String {
         val output = StringBuilder()
         inputStream?.let { _inputStream ->
             val inputStreamReader = InputStreamReader(_inputStream, Charset.forName("UTF-8"))
