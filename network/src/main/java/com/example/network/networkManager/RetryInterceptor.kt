@@ -5,8 +5,10 @@ import android.graphics.BitmapFactory
 import android.util.Log
 import com.example.network.utility.JsonParser
 import org.json.JSONException
+import java.io.FileNotFoundException
 import java.io.IOException
 import java.net.SocketException
+import java.net.UnknownHostException
 import kotlin.random.Random
 
 /**
@@ -59,14 +61,20 @@ class RetryInterceptor(private val httpCall: HttpCall) {
                 val `in` = java.net.URL(_imageUrl).openStream()
                 BitmapFactory.decodeStream(`in`)
             }
+        } catch (u: UnknownHostException) {
+            Log.w(TAG, "fetchBitmap: internet is not connected", u)
+            fetchBitmap(0) // force it out since internet is not connected
         } catch (r: RequestCodeException) {
             Log.e(TAG, "fetchBitmap: Call failed: Response code: ${r.code}", r)
             fetchBitmap(retry - 1)
-        } catch (i: IOException) {
-            Log.e(TAG, "fetchBitmap: Unexpected failure happened", i)
+        }  catch (f: FileNotFoundException) {
+            Log.w(TAG, "fetchBitmap: file not found for image", f)
             fetchBitmap(retry - 1)
         } catch (s: SocketException) {
             Log.e(TAG, "fetchBitmap: Socket timeout", s)
+            fetchBitmap(retry - 1)
+        } catch (i: IOException) {
+            Log.e(TAG, "fetchBitmap: Unexpected failure happened", i)
             fetchBitmap(retry - 1)
         } catch (j: JSONException) {
             Log.e(TAG, "fetchBitmap: invalid json while parsing", j)

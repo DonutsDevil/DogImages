@@ -60,14 +60,15 @@ class ImageInit(private val callback: Callback) {
         callback.inProgress()
         NetworkManager.fetchImages(number, object : IResult {
             override fun onResponse(bitmapList: List<Bitmap?>) {
-                val imageAddedToTheList = if (bitmapList.isNotEmpty()) {
+                if (bitmapList.isNotEmpty()) {
                     synchronized(lock) {
                         imagesBitmapList.addAll(bitmapList)
+                        callback.onSuccess(null)
                     }
                 } else {
-                    false
+                    callback.onFailure()
                 }
-                callback.onSuccess(null)
+                isPreviousImageAvailable()
             }
         })
 
