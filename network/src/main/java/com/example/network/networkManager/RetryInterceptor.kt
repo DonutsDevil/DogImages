@@ -7,8 +7,10 @@ import com.example.network.utility.JsonParser
 import org.json.JSONException
 import java.io.FileNotFoundException
 import java.io.IOException
+import java.io.ObjectInput
 import java.net.SocketException
 import java.net.UnknownHostException
+import kotlin.math.log
 import kotlin.random.Random
 
 /**
@@ -21,6 +23,8 @@ class RetryInterceptor(private val httpCall: HttpCall) {
         private const val TAG = "RetryInterceptor"
         private const val times_retry = 3
         private const val url = "https://dog.ceo/api/breeds/image/random"
+        private val lock = Object()
+        private val addLock = Object()
     }
 
     /**
@@ -31,14 +35,32 @@ class RetryInterceptor(private val httpCall: HttpCall) {
      */
     fun makeHttpCall(times: Int): List<Bitmap?> {
         if (times <= 0) {
-            Log.d(TAG,"makeHttpCall: number of time to fetch dog image is less or equal to 0: $times")
+            Log.d(
+                TAG,
+                "makeHttpCall: number of time to fetch dog image is less or equal to 0: $times"
+            )
             return emptyList()
         }
         val imageList = mutableListOf<Bitmap?>()
         for (makeCall in 1..times) {
-            val bitmap = fetchBitmap()
-            imageList.add(bitmap)
+            Log.d(TAG, "makeHttpCall: before making submit")
+            NetworkManager.executor.submit {
+                Log.d(TAG, "makeHttpCall: call $makeCall")
+                val bitmap = fetchBitmap()
+                synchronized(addLock) {
+                    imageList.add(bitmap)
+                    if (imageList.size == times) {
+                        Log.d(TAG, "makeHttpCall: is notify the lock")
+                        lock.notifyAll()
+                    }
+                }
+            }
         }
+        Log.d(TAG, "makeHttpCall: going to wait")
+        synchronized(addLock) {
+            lock.wait()
+        }
+        Log.d(TAG, "makeHttpCall: passing the list $imageList")
         return imageList
     }
 
@@ -67,7 +89,7 @@ class RetryInterceptor(private val httpCall: HttpCall) {
         } catch (r: RequestCodeException) {
             Log.e(TAG, "fetchBitmap: Call failed: Response code: ${r.code}", r)
             fetchBitmap(retry - 1)
-        }  catch (f: FileNotFoundException) {
+        } catch (f: FileNotFoundException) {
             Log.w(TAG, "fetchBitmap: file not found for image", f)
             fetchBitmap(retry - 1)
         } catch (s: SocketException) {
@@ -88,7 +110,7 @@ class RetryInterceptor(private val httpCall: HttpCall) {
      */
     private fun sleep() {
         try {
-            Thread.sleep((100 + Random.nextLong(100,900)))
+            Thread.sleep((100 + Random.nextLong(100, 900)))
         } catch (e: InterruptedException) {
             Log.w(TAG, "sleep: thread interrupted")
         }

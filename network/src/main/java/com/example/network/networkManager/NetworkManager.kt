@@ -8,8 +8,8 @@ import java.util.concurrent.TimeUnit
 object NetworkManager {
     private const val TAG = "NetworkManager"
 
-    private val executor by lazy {
-        ThreadPoolExecutor(0, 1,
+    val executor by lazy {
+        ThreadPoolExecutor(0, 10,
         30L, TimeUnit.SECONDS,
         LinkedBlockingDeque()
         )
