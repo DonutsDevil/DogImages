@@ -44,7 +44,7 @@ afterEvaluate {
 
                 groupId = 'com.github.DonutsDevil'
                 artifactId = 'DogImages'
-                version = '1.0'
+                version = '1.0.0'
             }
         }
     }
