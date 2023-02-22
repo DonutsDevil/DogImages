@@ -5,7 +5,8 @@ class Utility {
         enum class UI_STATES {
             IN_PROGRESS,
             DONE,
-            FAILURE
+            FAILURE,
+            IS_FIRST_IMAGE
         }
     }
 }

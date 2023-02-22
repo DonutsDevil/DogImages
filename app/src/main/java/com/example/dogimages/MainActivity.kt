@@ -28,48 +28,22 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val dogImageProvider: ImageInit by lazy {
-        ImageInit.getInstance()
+        ImageInit.getInstance(dogImageCallback())
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         initViews()
+        // Load an image before
+        dogImageProvider.getNextImage()
     }
 
 
     override fun onResume() {
         super.onResume()
 
-        btnNext.setOnClickListener {
-            dogImageProvider.getNextImage(object : Callback() {
-                val methodTag = "onResume.getNextImage"
-                override fun onCompletion(state: Utility.Companion.UI_STATES, bitmap: Bitmap?) {
-
-                    when (state) {
-                        Utility.Companion.UI_STATES.IN_PROGRESS -> {
-                            Log.w(TAG, "$methodTag.IN_PROGRESS: Making server call")
-                            setProgressBarVisibility(View.VISIBLE)
-                        }
-                        Utility.Companion.UI_STATES.FAILURE -> {
-                            Log.w(TAG, "$methodTag.FAILURE: bitmapImage is not available for this call")
-                            setProgressBarVisibility(View.GONE)
-
-                        }
-                        Utility.Companion.UI_STATES.DONE -> {
-                            runOnUiThread {
-                                bitmap?.let { _bitmap ->
-                                    ivImage.setImageBitmap(_bitmap)
-                                } ?: Log.w(TAG, "$methodTag.DONE: bitmapImage is not available for this call")
-                                setProgressBarVisibility(View.GONE)
-                            }
-                        }
-
-                    }
-
-                }
-            })
-        }
+        btnNext.setOnClickListener { dogImageProvider.getNextImage() }
 
         btnPrevious.setOnClickListener {
             val bitmap = dogImageProvider.getPreviousImage()
@@ -121,6 +95,39 @@ class MainActivity : AppCompatActivity() {
     private fun setScreenTouchRestriction() {
         window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
             WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+    }
+
+    private fun dogImageCallback() = object : Callback() {
+        override fun onCompletion(state: Utility.Companion.UI_STATES, bitmap: Bitmap?) {
+            val methodTag = "dogImageCallback.onCompletion"
+            when (state) {
+                Utility.Companion.UI_STATES.IN_PROGRESS -> {
+                    Log.w(TAG, "$methodTag.IN_PROGRESS: Making server call")
+                    setProgressBarVisibility(View.VISIBLE)
+                }
+                Utility.Companion.UI_STATES.FAILURE -> {
+                    Log.w(TAG, "$methodTag.FAILURE: bitmapImage is not available for this call")
+                    setProgressBarVisibility(View.GONE)
+
+                }
+                Utility.Companion.UI_STATES.DONE -> {
+                    runOnUiThread {
+                        bitmap?.let { _bitmap ->
+                            ivImage.setImageBitmap(_bitmap)
+                        } ?: Log.w(TAG, "$methodTag.DONE: bitmapImage is not available for this call")
+                        setProgressBarVisibility(View.GONE)
+                        btnPrevious.isEnabled = true
+                    }
+                }
+                Utility.Companion.UI_STATES.IS_FIRST_IMAGE -> {
+                    Log.w(TAG, "$methodTag.IS_FIRST_IMAGE: disabling previous button")
+                    runOnUiThread {
+                        btnPrevious.isEnabled = false
+                    }
+                }
+            }
+
+        }
     }
 
 }

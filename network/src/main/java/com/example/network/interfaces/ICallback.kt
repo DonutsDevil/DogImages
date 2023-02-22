@@ -20,6 +20,11 @@ private interface ICallback {
      * always on main thread
      */
     fun inProgress()
+
+    /**
+     * If it's the first image, we call this
+     */
+    fun isFirstImage()
 }
 
 
@@ -27,7 +32,7 @@ abstract class Callback : ICallback {
     /**
      * bitmap can be null in case where library as added n number of images in the list
      * i.e when calling [com.example.network.ImageInit.getImages],
-     * when status is [Utility.Companion.UI_STATES.FAILURE] / [Utility.Companion.UI_STATES.IN_PROGRESS]
+     * when status other then [Utility.Companion.UI_STATES.DONE]
      * @param state [Utility.Companion.UI_STATES] defines states at which the request is
      * @param bitmap holds the fetched bitmap if [Utility.Companion.UI_STATES.DONE], else null
      */
@@ -43,6 +48,10 @@ abstract class Callback : ICallback {
 
     override fun inProgress() {
         onCompletion(Utility.Companion.UI_STATES.IN_PROGRESS, null)
+    }
+
+    override fun isFirstImage() {
+        onCompletion(Utility.Companion.UI_STATES.IS_FIRST_IMAGE, null)
     }
 
 }

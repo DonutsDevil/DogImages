@@ -6,7 +6,7 @@ import com.example.network.interfaces.Callback
 import com.example.network.interfaces.IResult
 import com.example.network.networkManager.NetworkManager
 
-class ImageInit {
+class ImageInit(private val callback: Callback) {
 
     companion object {
         private val imagesBitmapList = mutableListOf<Bitmap?>()
@@ -22,11 +22,11 @@ class ImageInit {
         @Volatile
         private var instance: ImageInit? = null
 
-        fun getInstance(): ImageInit {
+        fun getInstance(callback: Callback): ImageInit {
             if (instance == null) {
                 synchronized(lock) {
                     if (instance == null) {
-                        instance = ImageInit()
+                        instance = ImageInit(callback)
                     }
                 }
             }
@@ -56,7 +56,7 @@ class ImageInit {
     /**
      * gets [number] of bitmaps from the server and adds to the list
      */
-    fun getImages(number: Int, callback: Callback) {
+    fun getImages(number: Int) {
         callback.inProgress()
         NetworkManager.fetchImages(number, object : IResult {
             override fun onResponse(bitmapList: List<Bitmap?>) {
@@ -77,7 +77,7 @@ class ImageInit {
      * Shows the next image, If the user is at the end then it will fetch the image [getImage] and then show
      * @return Bitmap of the next image which is to be showed
      */
-    fun getNextImage(callback: Callback) {
+    fun getNextImage() {
         callback.inProgress()
         if (getCurrentListIndex() + 1 == imagesBitmapList.size) {
             Log.d(TAG, "getNextImage: Fetch new image")
@@ -101,6 +101,7 @@ class ImageInit {
             incrementUserViewIndex()
             val bitmap = imagesBitmapList[getCurrentListIndex()]
             callback.onSuccess(bitmap)
+            isPreviousImageAvailable()
         }
     }
 
@@ -112,10 +113,23 @@ class ImageInit {
         if (getCurrentListIndex() <= 0 || imagesBitmapList.isEmpty()) {
             // do nothing since there is no image to be shown
             Log.i(TAG, "getPreviousImage: do nothing since there is no image to be shown")
+            isPreviousImageAvailable()
             return null
         }
         decrementUserViewIndex()
+        isPreviousImageAvailable()
         return imagesBitmapList[getCurrentListIndex()]
+    }
+
+    /**
+     * Tells whether theres any dog image before the current image that is been shown on the screen
+     */
+    private fun isPreviousImageAvailable() {
+        if (getCurrentListIndex() <= 0) {
+            Log.d(TAG, "isPreviousImageAvailable: ${getCurrentListIndex()}")
+            // means there are no bitmap image before this
+            callback.isFirstImage()
+        }
     }
 
 
