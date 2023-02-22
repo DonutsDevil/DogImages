@@ -21,14 +21,14 @@ object NetworkManager {
      */
     internal fun fetchImages(times: Int = 1, callback: IResult) {
         executor.submit {
-            getRetryInterceptor().makeHttpCall(times, callback)
+            geHttpCallHandler().makeHttpCall(times, callback)
         }
     }
 
     /**
      * @return [HttpCallHandler]
      */
-    private fun getRetryInterceptor(): HttpCallHandler {
+    private fun geHttpCallHandler(): HttpCallHandler {
         return HttpCallHandler(HttpCall())
     }
 }
