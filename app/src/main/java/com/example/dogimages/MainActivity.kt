@@ -3,6 +3,8 @@ package com.example.dogimages
 import android.graphics.Bitmap
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.view.WindowManager
@@ -54,6 +56,43 @@ class MainActivity : AppCompatActivity() {
                 TAG,
                 "onResume.setOnClickListener: bitmapImage is not available for this call"
             )
+        }
+
+        etNumbers.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                //
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                //
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                if (s?.trim()?.isEmpty() == true) {
+                    btnSubmit.visibility = View.GONE
+                } else {
+                    try {
+                        val numberInChar = s as CharSequence
+                        val number = numberInChar.toString().toInt()
+                        Log.d(TAG, "afterTextChanged: $number")
+                        if (number <= 0) {
+                            btnSubmit.visibility = View.GONE
+                            etNumbers.error = "Number should be greater then 0"
+                        } else {
+                            btnSubmit.visibility = View.VISIBLE
+                            etNumbers.error = null
+                        }
+                    } catch (e: NumberFormatException) {
+                        etNumbers.error = "Number should be greater then 0 and non decimal"
+                        btnSubmit.visibility = View.GONE
+                    }
+                }
+            }
+        })
+
+        btnSubmit.setOnClickListener {
+            dogImageProvider.getImages(etNumbers.text.toString().toInt())
+            etNumbers.text = null
         }
 
     }
@@ -129,5 +168,4 @@ class MainActivity : AppCompatActivity() {
 
         }
     }
-
 }
