@@ -39,7 +39,7 @@ class HttpCallHandler(private val httpCall: HttpCall) {
         }
         val imageList = mutableListOf<Bitmap?>()
         for (makeCall in 1..times) {
-            NetworkManager.executor.submit {
+            Executor.submit {
                 val bitmap = fetchBitmap()
                 synchronized(addLock) {
                     imageList.add(bitmap)
