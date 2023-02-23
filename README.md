@@ -20,6 +20,14 @@ It fetch dog images from the server and returns those images as asked.
 
 ## Dependency
 ```
+allprojects {
+		repositories {
+			...
+			maven { url 'https://jitpack.io' } <- add this
+		}
+	}
+
+// build.app
 implementation 'com.github.DonutsDevil:DogImages:1.0.2'
 ```
 
