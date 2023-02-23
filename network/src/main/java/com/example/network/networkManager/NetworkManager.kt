@@ -1,9 +1,7 @@
 package com.example.network.networkManager
 
 import com.example.network.interfaces.IResult
-import java.util.concurrent.SynchronousQueue
-import java.util.concurrent.ThreadPoolExecutor
-import java.util.concurrent.TimeUnit
+import com.example.network.utility.Executor
 
 object NetworkManager {
 

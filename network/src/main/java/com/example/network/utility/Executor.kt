@@ -1,4 +1,4 @@
-package com.example.network.networkManager
+package com.example.network.utility
 
 import java.util.concurrent.Future
 import java.util.concurrent.SynchronousQueue

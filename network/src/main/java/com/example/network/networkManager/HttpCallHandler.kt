@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.annotation.VisibleForTesting
 import com.example.network.interfaces.IResult
+import com.example.network.utility.Executor
 import com.example.network.utility.JsonParser
 import org.json.JSONException
 import java.io.FileNotFoundException
