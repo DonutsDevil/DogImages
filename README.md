@@ -17,6 +17,7 @@ It fetch dog images from the server and returns those images as asked.
   </tr>
 
 </table>
+
 ## Dependency
 ```
 implementation 'com.github.DonutsDevil:DogImages:1.0.2'
