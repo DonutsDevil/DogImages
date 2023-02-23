@@ -4,6 +4,19 @@ It fetch dog images from the server and returns those images as asked.
 - Can fetch single image at a time
 - Can fetch mutliple image at a time parrallely
 
+<table>
+  
+  <tr>
+    <td> <img src="https://github.com/DonutsDevil/DogImages/blob/master/resources/prev_next.gif" width="200"> </td>
+    <td> <h2> Get Next Image</h2> <br />1. Get the Image from the server if image are not fetched else returns the fetched image.</br></td>
+  </tr>
+  
+  <tr>
+     <td> <img src="https://github.com/DonutsDevil/DogImages/blob/master/resources/getImages.gif" width="200"> </td>
+     <td> <h2> Load Images</h2> <br />1. When we click on submit with a number it will fetch that many images.</br> 2. Fetched Images will be showned once we click next</td>
+  </tr>
+
+</table>
 ## Dependency
 ```
 implementation 'com.github.DonutsDevil:DogImages:1.0.2'
