@@ -48,7 +48,7 @@ class HttpCallUnitTest : BaseUnitTest() {
         // invoke
         val json = httpCallSpy!!.fetchJson(emptyUrl)
 
-        //verify
+        // verify
         Assert.assertEquals("", json)
         verify(exactly = 0) { httpCallSpy!!.createUrl(emptyUrl) }
     }
@@ -58,7 +58,7 @@ class HttpCallUnitTest : BaseUnitTest() {
         // invoke
         httpCallSpy!!.fetchJson(malformedUrl)
 
-        //verify
+        // verify
         verify(exactly = 0) { httpCallSpy!!.makeHttpRequest(any()) }
         verify(exactly = 1) { httpCallSpy!!.createUrl(malformedUrl) }
     }
@@ -73,7 +73,7 @@ class HttpCallUnitTest : BaseUnitTest() {
         // invoke
         val json = httpCallSpy!!.fetchJson(prefectUrl)
 
-        //verify
+        // verify
         Assert.assertEquals("", json)
         verify(exactly = 1) { httpCallSpy!!.makeHttpRequest(URLMock) }
         verify(exactly = 1) { httpCallSpy!!.createUrl(prefectUrl) }
@@ -93,7 +93,7 @@ class HttpCallUnitTest : BaseUnitTest() {
         // invoke
         val json = httpCallSpy!!.fetchJson(prefectUrl)
 
-        //verify
+        // verify
         Assert.assertEquals(validJsonResponse, json)
         verify(exactly = 1) { httpCallSpy!!.makeHttpRequest(URLMock) }
         verify(exactly = 1) { httpCallSpy!!.createUrl(prefectUrl) }
@@ -112,7 +112,7 @@ class HttpCallUnitTest : BaseUnitTest() {
         // invoke
         httpCallSpy!!.fetchJson(prefectUrl)
 
-        //verify
+        // verify
         verify(exactly = 1) { httpCallSpy!!.makeHttpRequest(URLMock) }
         verify(exactly = 1) { httpCallSpy!!.createUrl(prefectUrl) }
         verify(exactly = 0) { httpCallSpy!!.readFromStream(inputStreamMock) }

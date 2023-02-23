@@ -16,6 +16,7 @@ class JsonParser {
          * @throws IOException if any exception occurs
          */
         @Throws(JSONException::class)
+        @JvmStatic
         fun getImageUrl(json: String): String? {
             if (json.isEmpty()) {
                 Log.d(TAG, "getImageBitmap: jsonResponse is empty")

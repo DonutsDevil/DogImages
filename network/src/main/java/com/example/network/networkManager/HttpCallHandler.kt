@@ -3,6 +3,7 @@ package com.example.network.networkManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
+import androidx.annotation.VisibleForTesting
 import com.example.network.interfaces.IResult
 import com.example.network.utility.JsonParser
 import org.json.JSONException
@@ -55,7 +56,8 @@ class HttpCallHandler(private val httpCall: HttpCall) {
      * @param retry is [times_retry] by default
      * @return bitmap which we receive after making the call
      */
-    private fun fetchBitmap(retry: Int = times_retry): Bitmap? {
+    @VisibleForTesting
+    fun fetchBitmap(retry: Int = times_retry): Bitmap? {
         if (retry == 0) {
             // We exhausted the retries hence returning null
             return null
@@ -68,7 +70,7 @@ class HttpCallHandler(private val httpCall: HttpCall) {
             return imageUrl?.let { _imageUrl ->
                 val `in` = java.net.URL(_imageUrl).openStream()
                 BitmapFactory.decodeStream(`in`)
-            }
+            } ?: fetchBitmap(retry - 1)
         } catch (u: UnknownHostException) {
             Log.w(TAG, "fetchBitmap: internet is not connected", u)
             fetchBitmap(0) // force it out since internet is not connected
